@@ -13,6 +13,7 @@ export default function TrackDetailPage() {
   const params = useParams();
   const [track, setTrack] = useState<SkillTrack | null>(null);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [role, setRole] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -23,6 +24,9 @@ export default function TrackDetailPage() {
   const loadTrack = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
+
+    const { data: userData } = await supabase.from('users').select('role').eq('id', user.id).single();
+    if (userData) setRole(userData.role);
 
     const res = await fetch(`/api/v1/skill-tracks/${params.id}`);
     const data = await res.json();
@@ -74,14 +78,26 @@ export default function TrackDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link href="/tracks" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
-            <ArrowLeft className="w-4 h-4 mr-1" /> All Tracks
-          </Link>
-          <h1 className="text-2xl font-bold">{track.title}</h1>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-            <span className="capitalize px-2 py-0.5 bg-primary-50 text-primary-700 rounded text-xs">{track.difficulty}</span>
-            <span>{track.category}</span>
-            <span>{track.modules?.length || 0} modules</span>
+          <div className="flex items-start justify-between">
+            <div>
+              <Link href="/tracks" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
+                <ArrowLeft className="w-4 h-4 mr-1" /> All Tracks
+              </Link>
+              <h1 className="text-2xl font-bold">{track.title}</h1>
+              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                <span className="capitalize px-2 py-0.5 bg-primary-50 text-primary-700 rounded text-xs">{track.difficulty}</span>
+                <span>{track.category}</span>
+                <span>{track.modules?.length || 0} modules</span>
+              </div>
+            </div>
+            {['mentor', 'trainer', 'org_admin', 'super_admin'].includes(role) && (
+              <Link
+                href={`/tracks/${track.id}/manage`}
+                className="flex items-center gap-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm"
+              >
+                Manage Content
+              </Link>
+            )}
           </div>
         </div>
       </header>

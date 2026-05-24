@@ -9,7 +9,7 @@ CREATE TYPE user_role AS ENUM ('youth', 'mentor', 'trainer', 'org_admin', 'super
 CREATE TYPE org_type AS ENUM ('church', 'campus', 'ngo');
 CREATE TYPE subscription_tier AS ENUM ('free', 'pro', 'enterprise');
 CREATE TYPE difficulty AS ENUM ('beginner', 'intermediate', 'advanced');
-CREATE TYPE module_type AS ENUM ('video', 'article', 'quiz');
+CREATE TYPE module_type AS ENUM ('video', 'article', 'quiz', 'audio');
 CREATE TYPE match_status AS ENUM ('pending', 'active', 'completed');
 CREATE TYPE session_status AS ENUM ('scheduled', 'completed', 'cancelled');
 CREATE TYPE goal_status AS ENUM ('open', 'in_progress', 'achieved');
@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS public.modules (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   track_id UUID NOT NULL REFERENCES public.skill_tracks(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  content_url TEXT NOT NULL,
+  content_url TEXT,
+  content_body TEXT,
   type module_type NOT NULL DEFAULT 'video',
   order_index INT NOT NULL DEFAULT 0,
   duration_mins INT NOT NULL DEFAULT 10
@@ -275,6 +276,30 @@ CREATE POLICY "tracks_select" ON public.skill_tracks
 CREATE POLICY "modules_select" ON public.modules
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.skill_tracks WHERE id = track_id AND (is_published = true OR created_by = auth.uid()))
+  );
+
+CREATE POLICY "modules_insert" ON public.modules
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM public.skill_tracks WHERE id = track_id AND (
+      created_by = auth.uid()
+      OR EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('mentor', 'trainer', 'org_admin', 'super_admin'))
+    ))
+  );
+
+CREATE POLICY "modules_update" ON public.modules
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM public.skill_tracks WHERE id = track_id AND (
+      created_by = auth.uid()
+      OR EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('mentor', 'trainer', 'org_admin', 'super_admin'))
+    ))
+  );
+
+CREATE POLICY "modules_delete" ON public.modules
+  FOR DELETE USING (
+    EXISTS (SELECT 1 FROM public.skill_tracks WHERE id = track_id AND (
+      created_by = auth.uid()
+      OR EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('mentor', 'trainer', 'org_admin', 'super_admin'))
+    ))
   );
 
 -- Enrollments: own enrollment or org admin

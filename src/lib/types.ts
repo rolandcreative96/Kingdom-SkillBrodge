@@ -6,7 +6,7 @@ export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
-export type ModuleType = 'video' | 'article' | 'quiz';
+export type ModuleType = 'video' | 'article' | 'quiz' | 'audio';
 
 export type MatchStatus = 'pending' | 'active' | 'completed';
 
@@ -79,7 +79,8 @@ export interface Module {
   id: string;
   track_id: string;
   title: string;
-  content_url: string;
+  content_url: string | null;
+  content_body: string | null;
   type: ModuleType;
   order_index: number;
   duration_mins: number;
