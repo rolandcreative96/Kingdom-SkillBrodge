@@ -6,7 +6,7 @@ export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
-export type ModuleType = 'video' | 'article' | 'quiz' | 'audio';
+export type ModuleType = 'video' | 'article' | 'quiz' | 'audio' | 'document';
 
 export type MatchStatus = 'pending' | 'active' | 'completed';
 

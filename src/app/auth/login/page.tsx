@@ -35,7 +35,8 @@ function LoginForm() {
       .eq('id', data.user.id)
       .single();
 
-    router.push(userData?.role === 'org_admin' ? '/admin' : '/dashboard');
+    const educatorRoles = ['org_admin', 'super_admin', 'trainer', 'mentor'];
+    router.push(userData && educatorRoles.includes(userData.role) ? '/admin' : '/dashboard');
   };
 
   return (

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase';
 import {
   Users, BookOpen, Award, Briefcase, TrendingUp, LogOut,
-  Plus, Download, ChevronRight, UserPlus, Activity
+  Plus, Download, ChevronRight, UserPlus, Activity, FileText
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,38 +47,29 @@ export default function AdminDashboard() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push('/auth/login'); return; }
 
-    const userData = await supabase.from('users').select('role').eq('id', user.id).single();
-    if (userData.data?.role !== 'org_admin') {
-      router.push('/dashboard');
-      return;
+    const { data: profile } = await supabase.from('profiles').select('*, organisations(*)').eq('user_id', user.id).maybeSingle();
+
+    if (profile?.org_id) {
+      setOrgName((profile.organisations as any)?.name || '');
+
+      const { data: membersData } = await supabase
+        .from('org_memberships')
+        .select('*, user:users(*), profile:profiles(*)')
+        .eq('org_id', profile.org_id)
+        .eq('status', 'active');
+
+      setMembers((membersData || []).map((m: any) => ({
+        id: m.user?.id,
+        full_name: m.profile?.full_name || 'Unknown',
+        email: m.user?.email || '',
+        role: m.role,
+        joined_at: m.joined_at,
+      })));
+
+      const res = await fetch(`/api/v1/orgs/${profile.org_id}/analytics`);
+      const data = await res.json();
+      if (data.data) setAnalytics(data.data);
     }
-
-    const { data: profile } = await supabase.from('profiles').select('*, organisations(*)').eq('user_id', user.id).single();
-
-    if (!profile?.org_id) {
-      setLoading(false);
-      return;
-    }
-
-    setOrgName((profile.organisations as any)?.name || '');
-
-    const { data: membersData } = await supabase
-      .from('org_memberships')
-      .select('*, user:users(*), profile:profiles(*)')
-      .eq('org_id', profile.org_id)
-      .eq('status', 'active');
-
-    setMembers((membersData || []).map((m: any) => ({
-      id: m.user?.id,
-      full_name: m.profile?.full_name || 'Unknown',
-      email: m.user?.email || '',
-      role: m.role,
-      joined_at: m.joined_at,
-    })));
-
-    const res = await fetch(`/api/v1/orgs/${profile.org_id}/analytics`);
-    const data = await res.json();
-    if (data.data) setAnalytics(data.data);
 
     setLoading(false);
   };
@@ -127,6 +118,12 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link
+                href="/lessons"
+                className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+              >
+                <FileText className="w-4 h-4" /> Lessons
+              </Link>
               <Link
                 href="/opportunities"
                 className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
@@ -221,7 +218,17 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Quick Actions</h3>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <Link
+              href="/lessons"
+              className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:border-primary-300 transition"
+            >
+              <FileText className="w-5 h-5 text-primary-500" />
+              <div>
+                <p className="text-sm font-medium">Manage Lessons</p>
+                <p className="text-xs text-gray-500">Upload video, audio, PDF lessons</p>
+              </div>
+            </Link>
             <Link
               href="/opportunities"
               className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:border-primary-300 transition"

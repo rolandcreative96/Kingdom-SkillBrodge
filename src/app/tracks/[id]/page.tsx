@@ -144,7 +144,9 @@ export default function TrackDetailPage() {
                   <div>
                     <h3 className="font-medium">{module.title}</h3>
                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                      <span className="capitalize">{module.type}</span>
+                      <span className={`capitalize px-1.5 py-0.5 rounded text-xs ${
+                        module.type === 'document' ? 'bg-orange-100 text-orange-700' : ''
+                      }`}>{module.type === 'document' ? 'PDF' : module.type}</span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {module.duration_mins} min
                       </span>

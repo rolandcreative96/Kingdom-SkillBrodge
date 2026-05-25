@@ -57,14 +57,11 @@ export function getSupabaseClient(): SupabaseClient {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key || url === 'your_supabase_url_here') {
-    if (!isBrowser) {
-      return makeMockClient();
-    }
-    throw new Error('Configure NEXT_PUBLIC_SUPABASE_URL in .env.local');
+    return makeMockClient();
   }
 
   cached = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: { persistSession: true, autoRefreshToken: true },
   });
 
   return cached;

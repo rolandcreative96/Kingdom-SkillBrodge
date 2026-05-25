@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { Module, SkillTrack } from '@/lib/types';
 
-type ModuleType = 'video' | 'article' | 'quiz' | 'audio';
+type ModuleType = 'video' | 'article' | 'quiz' | 'audio' | 'document';
 
 export default function ManageContentPage() {
   const params = useParams();
@@ -205,6 +205,7 @@ export default function ManageContentPage() {
                   <option value="video">Video</option>
                   <option value="article">Article (Text)</option>
                   <option value="audio">Audio</option>
+                  <option value="document">PDF / Document</option>
                   <option value="quiz">Quiz</option>
                 </select>
               </div>
@@ -217,12 +218,21 @@ export default function ManageContentPage() {
               ) : (
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    {formType === 'audio' ? 'Audio URL' : 'Video URL'}
+                    {formType === 'audio' ? 'Audio URL' : formType === 'document' ? 'Document URL' : 'Video URL'}
                   </label>
                   <input type="url" value={formContentUrl} onChange={e => setFormContentUrl(e.target.value)} className="mt-1 w-full px-3 py-2 border rounded-lg" placeholder="https://..." />
                   <div className="mt-2">
                     <label className="block text-sm font-medium text-gray-700">Or upload a file</label>
-                    <input type="file" accept={formType === 'audio' ? 'audio/*' : 'video/*'} onChange={handleFileUpload} className="mt-1 text-sm" />
+                    <input
+                      type="file"
+                      accept={
+                        formType === 'audio' ? 'audio/*' :
+                        formType === 'document' ? '.pdf,.doc,.docx,.txt' :
+                        'video/*'
+                      }
+                      onChange={handleFileUpload}
+                      className="mt-1 text-sm"
+                    />
                     {uploading && <span className="text-xs text-gray-500 ml-2">Uploading...</span>}
                   </div>
                 </div>
@@ -258,7 +268,7 @@ export default function ManageContentPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{m.title}</p>
                 <div className="flex gap-3 text-xs text-gray-500 mt-1">
-                  <span className={`px-2 py-0.5 rounded ${m.type === 'video' ? 'bg-blue-100 text-blue-700' : m.type === 'article' ? 'bg-green-100 text-green-700' : m.type === 'audio' ? 'bg-purple-100 text-purple-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                  <span className={`px-2 py-0.5 rounded ${m.type === 'video' ? 'bg-blue-100 text-blue-700' : m.type === 'article' ? 'bg-green-100 text-green-700' : m.type === 'audio' ? 'bg-purple-100 text-purple-700' : m.type === 'document' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
                     {m.type}
                   </span>
                   <span>{m.duration_mins} min</span>

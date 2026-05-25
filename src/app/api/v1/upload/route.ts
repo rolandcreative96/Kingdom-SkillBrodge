@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
     const allowedVideo = ['mp4', 'webm', 'mov', 'avi'];
     const allowedAudio = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
     const allowedImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    const allowed = [...allowedVideo, ...allowedAudio, ...allowedImage];
+    const allowedDocument = ['pdf', 'doc', 'docx', 'txt'];
+    const allowed = [...allowedVideo, ...allowedAudio, ...allowedImage, ...allowedDocument];
 
     if (!allowed.includes(ext)) {
       return NextResponse.json({ data: null, error: `File type .${ext} not allowed` }, { status: 400 });

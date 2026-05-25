@@ -9,7 +9,7 @@ CREATE TYPE user_role AS ENUM ('youth', 'mentor', 'trainer', 'org_admin', 'super
 CREATE TYPE org_type AS ENUM ('church', 'campus', 'ngo');
 CREATE TYPE subscription_tier AS ENUM ('free', 'pro', 'enterprise');
 CREATE TYPE difficulty AS ENUM ('beginner', 'intermediate', 'advanced');
-CREATE TYPE module_type AS ENUM ('video', 'article', 'quiz', 'audio');
+CREATE TYPE module_type AS ENUM ('video', 'article', 'quiz', 'audio', 'document');
 CREATE TYPE match_status AS ENUM ('pending', 'active', 'completed');
 CREATE TYPE session_status AS ENUM ('scheduled', 'completed', 'cancelled');
 CREATE TYPE goal_status AS ENUM ('open', 'in_progress', 'achieved');

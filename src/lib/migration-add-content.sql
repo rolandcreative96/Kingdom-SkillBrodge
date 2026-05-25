@@ -1,7 +1,8 @@
--- Migration: Add audio type and content_body to modules
+-- Migration: Add audio, document types and content_body to modules
 -- Run this in Supabase SQL Editor if you already ran schema.sql
 
 ALTER TYPE public.module_type ADD VALUE IF NOT EXISTS 'audio';
+ALTER TYPE public.module_type ADD VALUE IF NOT EXISTS 'document';
 
 ALTER TABLE public.modules ADD COLUMN IF NOT EXISTS content_body TEXT;
 ALTER TABLE public.modules ALTER COLUMN content_url DROP NOT NULL;
